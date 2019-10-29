@@ -35,7 +35,12 @@ CREATE TABLE FUNCIONARIO (
     endereco    VARCHAR2(200) NOT NULL,
     salario	NUMBER(6,2) NOT NULL,
     funcao	VARCHAR2(50) NOT NULL,
+    matricula_supervisor INT,
 	
+    CONSTRAINT fk_funcionario_supervisor
+    FOREIGN KEY (matricula_supervisor) 
+    REFERENCES  FUNCIONARIO(matricula),
+
 	CONSTRAINT pk_funcionario
 	PRIMARY KEY (matricula)
 );
@@ -47,10 +52,11 @@ CREATE TABLE TELEFONE_FUNCIONARIO (
     CONSTRAINT fk_telefone_funcionario
     FOREIGN KEY (matricula)
     REFERENCES  FUNCIONARIO(matricula),
-••••••••
-••••••••
-••••••••
-••••••••
+
+	CONSTRAINT pk_funcionario_telefone
+	PRIMARY KEY (telefone, matricula)
+);
+
 
 CREATE TABLE DEPENDENTE (
     cpf 	VARCHAR2(14),
@@ -81,6 +87,26 @@ CREATE TABLE PRODUTO (
     nome  VARCHAR2(100) NOT NULL,
     descricao	VARCHAR2(255) NOT NULL,
     margem_lucro  VARCHAR2(4) NOT NULL,
+    codigo_filial INT NOT NULL,
+    quantidade INT,
+    preco_compra NUMBER(6,2),
+    preco_venda NUMBER(6,2),
+    data_compra 	DATE NOT NULL,
+    data_validade 	DATE NOT NULL,
+    id_marca INT NOT NULL,
+    id_categoria INT NOT NULL,
+
+    CONSTRAINT fk_filial_estoca
+    FOREIGN KEY (codigo_filial)
+    REFERENCES  FILIAL(codigo_identificacao),
+
+    CONSTRAINT fk_marca_produto
+    FOREIGN KEY (id_marca)
+    REFERENCES  MARCA(identificador),
+
+    CONSTRAINT fk_categoria_produto
+    FOREIGN KEY (id_categoria)
+    REFERENCES  CATEGORIA(identificador),
 
 	CONSTRAINT pk_produto
 	PRIMARY KEY (codigo_identificacao)
@@ -114,12 +140,13 @@ CREATE TABLE EQUIPAMENTO (
 CREATE TABLE REALIZA_MANUTENCAO (
     id_manutencao INT,
 	identificador_equipamento INT NOT NULL,
-	cpf_funcionario VARCHAR2(14) NOT NULL,
+	matricula_funcionario INT NOT NULL,
 	data_hora	TIMESTAMP NOT NULL,
+    custo NUMBER(6,2) NOT NULL,
 
     CONSTRAINT fk_manutencao_funcionario
-    FOREIGN KEY (cpf_funcionario) 
-    REFERENCES  FUNCIONARIO(cpf),
+    FOREIGN KEY (matricula_funcionario) 
+    REFERENCES  FUNCIONARIO(matricula),
 
     CONSTRAINT fk_manutencao_equipamento
     FOREIGN KEY (identificador) 
@@ -145,14 +172,39 @@ CREATE TABLE CATEGORIA (
 	PRIMARY KEY (identificador)
 );
 
+CREATE TABLE FORNECEDOR (
+    cnpj		VARCHAR2(14),
+    nome  VARCHAR2(100) NOT NULL,
+    endereco    VARCHAR2(200) NOT NULL,
+	email 	VARCHAR2(50) NOT NULL,
+    id_categoria INT NOT NULL,
+    
+    CONSTRAINT fk_categoria_fornecedor
+    FOREIGN KEY (id_categoria)
+    REFERENCES  CATEGORIA(identificador),
+
+	CONSTRAINT pk_fornecedor
+	PRIMARY KEY (cnpj)
+);
+
 CREATE TABLE SOLICITACAO (
 	identificador INT,
     data_solicitacao 	DATE NOT NULL,
     data_prevista 	DATE NOT NULL,
     data_entrega 	DATE NOT NULL,
     valor_compra	NUMBER(10,2) NOT NULL,
-    prazo_pagamento INT NOT NULL, 
+    prazo_pagamento INT NOT NULL,
+    codigo_filial INT NOT NULL,
+    cnpj_fornecedor		VARCHAR2(14),
 
+    CONSTRAINT fk_filial_realiza
+    FOREIGN KEY (codigo_filial)
+    REFERENCES  FILIAL(codigo_identificacao),
+
+    CONSTRAINT fk_recebe_fornecedor
+    FOREIGN KEY (cnpj_fornecedor)
+    REFERENCES  FORNECEDOR(cnpj),
+    
 	CONSTRAINT pk_solicitacao
 	PRIMARY KEY (identificador)
 );
@@ -163,19 +215,14 @@ CREATE TABLE NOTA_FISCAL (
     quantidade	INT NOT NULL,
     data  DATE NOT NULL,
     salario	NUMBER(8,2) NOT NULL,
-	
+	identificador_solicitacao INT NOT NULL,
+
+    CONSTRAINT fk_solicitacao_tem
+    FOREIGN KEY (identificador_solicitacao)
+    REFERENCES  SOLICITACAO(identificador),
+
 	CONSTRAINT pk_nota_fiscal
 	PRIMARY KEY (numero)
-);
-
-CREATE TABLE FORNECEDOR (
-    cnpj		VARCHAR2(14),
-    nome  VARCHAR2(100) NOT NULL,
-    endereco    VARCHAR2(200) NOT NULL,
-	email 	VARCHAR2(50) NOT NULL,
-    
-	CONSTRAINT pk_fornecedor
-	PRIMARY KEY (cnpj)
 );
 
 CREATE TABLE TELEFONE_FORNECEDOR (
@@ -195,7 +242,8 @@ CREATE TABLE ORDEM_COMPRA (
 	data_hora	TIMESTAMP NOT NULL,
 	cpf_cliente VARCHAR2(14) NOT NULL,
     codigo_filial INT NOT NULL,
-	cpf_funcionario VARCHAR2(14) NOT NULL,
+	matricula_funcionario INT NOT NULL,
+    numero_caixa INT NOT NULL,
 
     CONSTRAINT fk_ordem_cliente 
     FOREIGN KEY (cpf_cliente) 
@@ -206,8 +254,12 @@ CREATE TABLE ORDEM_COMPRA (
     REFERENCES  FILIAL(codigo_identificacao),
 
     CONSTRAINT fk_funcionario_realiza
-    FOREIGN KEY (cpf_funcionario) 
-    REFERENCES  FUNCIONARIO(cpf),
+    FOREIGN KEY (matricula_funcionario) 
+    REFERENCES  FUNCIONARIO(matricula),
+
+    CONSTRAINT fk_equipamento_caixa
+    FOREIGN KEY (numero_caixa) 
+    REFERENCES  CAIXA(numero_caixa),
 
 	CONSTRAINT pk_ordem_compra
 	PRIMARY KEY (numero_nota_fiscal)
@@ -215,24 +267,30 @@ CREATE TABLE ORDEM_COMPRA (
 
 CREATE TABLE ITEM (
     identificador  INT,
+    num_nota_fiscal_ordem INT,
     numero_nota_fiscal INT,
     quantidade	INT NOT NULL,
     preco_produto NUMBER(6,2) NOT NULL,
     desconto NUMBER(6,2) NOT NULL,
 
     CONSTRAINT fk_ordem_compra
-    FOREIGN KEY (numero_nota_fiscal)
+    FOREIGN KEY (num_nota_fiscal_ordem)
     REFERENCES  ORDEM_COMPRA(numero_nota_fiscal),
 
+    CONSTRAINT fk_nota_fiscal
+    FOREIGN KEY (numero_nota_fiscal)
+    REFERENCES  ORDEM_COMPRA(numero),
+
 	CONSTRAINT pk_item
-	PRIMARY KEY (identificador. numero_nota_fiscal)
+	PRIMARY KEY (identificador. num_nota_fiscal_ordem)
 );
 
 CREATE TABLE REALIZA_RECLAMACAO (
+    id_reclamacao INT,
 	data_hora	TIMESTAMP NOT NULL,
     descricao	VARCHAR2(255) NOT NULL,
-    codigo_filial INT,
-	cpf_cliente VARCHAR2(14),
+    codigo_filial INT NOT NULL,
+	cpf_cliente VARCHAR2(14) NOT NULL,
 
     CONSTRAINT fk_reclamacao_filial
     FOREIGN KEY (codigo_filial)
@@ -243,5 +301,5 @@ CREATE TABLE REALIZA_RECLAMACAO (
     REFERENCES  CLIENTE(cpf),
 
 	CONSTRAINT pk_reclamacao
-	PRIMARY KEY (codigo_filial, cpf_cliente)
+	PRIMARY KEY (id_reclamacao)
 );
