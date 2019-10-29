@@ -216,7 +216,7 @@ CREATE TABLE SOLICITACAO (
     valor_compra	NUMBER(10,2) NOT NULL,
     prazo_pagamento INT NOT NULL,
     codigo_filial INT NOT NULL,
-    cnpj_fornecedor		VARCHAR2(14),
+    cnpj_fornecedor	VARCHAR2(14) NOT NULL,
 
     CONSTRAINT fk_filial_realiza
     FOREIGN KEY (codigo_filial)
@@ -235,7 +235,7 @@ CREATE TABLE NOTA_FISCAL (
     cnpj	VARCHAR2(14) NOT NULL,
     quantidade	INT NOT NULL,
     data  DATE NOT NULL,
-    salario	NUMBER(8,2) NOT NULL,
+    valor_por_item	NUMBER(8,2) NOT NULL,
 	identificador_solicitacao INT NOT NULL,
 
     CONSTRAINT fk_solicitacao_tem
