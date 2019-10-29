@@ -82,6 +82,22 @@ CREATE TABLE FILIAL (
 	PRIMARY KEY (codigo_identificacao)
 );
 
+CREATE TABLE MARCA (
+	identificador INT,
+    nome  VARCHAR2(100) NOT NULL,
+
+	CONSTRAINT pk_marca
+	PRIMARY KEY (identificador)
+);
+
+CREATE TABLE CATEGORIA (
+	identificador INT,
+    nome  VARCHAR2(100) NOT NULL,
+
+	CONSTRAINT pk_categoria
+	PRIMARY KEY (identificador)
+);
+
 CREATE TABLE PRODUTO (
     codigo_identificacao  INT,
     nome  VARCHAR2(100) NOT NULL,
@@ -140,36 +156,21 @@ CREATE TABLE EQUIPAMENTO (
 CREATE TABLE REALIZA_MANUTENCAO (
     id_manutencao INT,
 	identificador_equipamento INT NOT NULL,
+    numero_caixa INT NOT NULL,
 	matricula_funcionario INT NOT NULL,
-	data_hora	TIMESTAMP NOT NULL,
+	data_hora TIMESTAMP NOT NULL,
     custo NUMBER(6,2) NOT NULL,
 
     CONSTRAINT fk_manutencao_funcionario
-    FOREIGN KEY (matricula_funcionario) 
+    FOREIGN KEY (matricula_funcionario)
     REFERENCES  FUNCIONARIO(matricula),
 
     CONSTRAINT fk_manutencao_equipamento
-    FOREIGN KEY (identificador) 
-    REFERENCES  EQUIPAMENTO(identificador),
+    FOREIGN KEY (numero_caixa, identificador_equipamento) 
+    REFERENCES  EQUIPAMENTO(numero_caixa, identificador),
 
 	CONSTRAINT pk_manutencao
 	PRIMARY KEY (id_manutencao)
-);
-
-CREATE TABLE MARCA (
-	identificador INT,
-    nome  VARCHAR2(100) NOT NULL,
-
-	CONSTRAINT pk_marca
-	PRIMARY KEY (identificador)
-);
-
-CREATE TABLE CATEGORIA (
-	identificador INT,
-    nome  VARCHAR2(100) NOT NULL,
-
-	CONSTRAINT pk_categoria
-	PRIMARY KEY (identificador)
 );
 
 CREATE TABLE FORNECEDOR (
@@ -227,7 +228,7 @@ CREATE TABLE NOTA_FISCAL (
 
 CREATE TABLE TELEFONE_FORNECEDOR (
 	telefone VARCHAR2(15),
-	cnpj	VARCHAR2(14)
+	cnpj VARCHAR2(14),
 
     CONSTRAINT fk_telefone_fornecedor
     FOREIGN KEY (cnpj)
@@ -257,7 +258,7 @@ CREATE TABLE ORDEM_COMPRA (
     FOREIGN KEY (matricula_funcionario) 
     REFERENCES  FUNCIONARIO(matricula),
 
-    CONSTRAINT fk_equipamento_caixa
+    CONSTRAINT fk_caixa_realizado
     FOREIGN KEY (numero_caixa) 
     REFERENCES  CAIXA(numero_caixa),
 
@@ -279,10 +280,10 @@ CREATE TABLE ITEM (
 
     CONSTRAINT fk_nota_fiscal
     FOREIGN KEY (numero_nota_fiscal)
-    REFERENCES  ORDEM_COMPRA(numero),
+    REFERENCES  NOTA_FISCAL(numero),
 
 	CONSTRAINT pk_item
-	PRIMARY KEY (identificador. num_nota_fiscal_ordem)
+	PRIMARY KEY (identificador, num_nota_fiscal_ordem)
 );
 
 CREATE TABLE REALIZA_RECLAMACAO (
@@ -296,7 +297,7 @@ CREATE TABLE REALIZA_RECLAMACAO (
     FOREIGN KEY (codigo_filial)
     REFERENCES  FILIAL(codigo_identificacao),
 
-    CONSTRAINT fk_reclamacao_cliente 
+    CONSTRAINT fk_reclamacao_cliente
     FOREIGN KEY (cpf_cliente) 
     REFERENCES  CLIENTE(cpf),
 
