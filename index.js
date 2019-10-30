@@ -49,6 +49,22 @@ const getElement = array => {
   return array[getRandomInt(0, array.length - 1)];
 };
 
+const getValue = value => {
+  return value < 10 ? "0" + value : value;
+};
+
+const getRandomCnpj = () => {
+  return (
+    "" +
+    getValue(getRandomInt(0, 99)) +
+    "." +
+    getRandomInt(100, 999) +
+    "." +
+    getRandomInt(100, 999) +
+    "/0001-" +
+    getRandomInt(10, 99)
+  );
+};
 const getRandomCpf = () => {
   return (
     "" +
@@ -70,18 +86,26 @@ const getRandomTelefone = () => {
 };
 
 const getRandomDate = () => {
-  return `TO_DATE('0${getRandomInt(1, 9)}/0${getRandomInt(1, 9)}/${getRandomInt(
-    1910,
-    2019
-  )}','DD/MM/YYYY')`;
+  return `TO_DATE('${getValue(getRandomInt(1, 28))}/${getValue(
+    getRandomInt(1, 12)
+  )}/${getRandomInt(1910, 2019)}','DD/MM/YYYY')`;
 };
 
+const getRandomTimestamp = () => {
+  return `TO_TIMESTAMP('${getRandomInt(2000, 2019)}-${getValue(
+    getRandomInt(1, 12)
+  )}-${getValue(getRandomInt(1, 28))} ${getValue(
+    getRandomInt(0, 23)
+  )}:${getValue(getRandomInt(0, 59))}:${getValue(
+    getRandomInt(0, 59)
+  )}', 'YYYY-MM-DD HH24:MI:SS')`;
+};
 const cliente = () => {
   let cliente = "\n\n------ CLIENTE ------\n\n";
 
   primaryKeys.cliente = [];
 
-  for (let idx = 0; idx < 20; idx++) {
+  for (let idx = 0; idx < 200; idx++) {
     const cpf = getRandomCpf();
     primaryKeys.cliente.push(cpf);
 
@@ -105,7 +129,7 @@ const cliente = () => {
 const telefoneCliente = () => {
   let telefoneCliente = "\n\n------ TELEFONE_CLIENTE ------\n\n";
 
-  for (let idx = 0; idx < 50; idx++) {
+  for (let idx = 0; idx < 200; idx++) {
     telefoneCliente += `${insert.telefoneCliente} ('${getElement(
       primaryKeys.cliente
     )}', '${getRandomTelefone()}');\n`;
@@ -128,7 +152,7 @@ const funcionario = () => {
 
   primaryKeys.funcionario = [];
 
-  for (let idx = 0; idx < 15; idx++) {
+  for (let idx = 0; idx < 150; idx++) {
     primaryKeys.funcionario.push(idx);
 
     funcionario += `${
@@ -150,7 +174,7 @@ const funcionario = () => {
 const telefoneFuncionario = () => {
   let telefoneFuncionario = "\n\n------ TELEFONE_FUNCIONARIO ------\n\n";
 
-  for (let idx = 0; idx < 30; idx++) {
+  for (let idx = 0; idx < 100; idx++) {
     telefoneFuncionario += `${insert.telefoneFuncionario} (${getElement(
       primaryKeys.funcionario
     )}, '${getRandomTelefone()}');\n`;
@@ -162,7 +186,7 @@ const telefoneFuncionario = () => {
 const dependente = () => {
   let dependente = "\n\n------ DEPENDENTE ------\n\n";
 
-  for (let idx = 0; idx < 40; idx++) {
+  for (let idx = 0; idx < 80; idx++) {
     dependente += `${
       insert.dependente
     } ('${getRandomCpf()}', ${getRandomDate()}, 'Dependente 0${idx}', ${getElement(
@@ -178,7 +202,7 @@ const filial = () => {
 
   primaryKeys.filial = [];
 
-  for (let idx = 0; idx < 15; idx++) {
+  for (let idx = 0; idx < 20; idx++) {
     primaryKeys.filial.push(idx);
 
     filial += `${insert.filial} (${idx}, 'Filial ${idx}', 'Rua ${getRandomInt(
@@ -209,7 +233,7 @@ const categoria = () => {
 
   primaryKeys.categoria = [];
 
-  for (let idx = 0; idx < 20; idx++) {
+  for (let idx = 0; idx < 30; idx++) {
     primaryKeys.categoria.push(idx);
 
     categoria += `${insert.categoria} (${idx}, 'Categoria ${idx}');\n`;
@@ -223,7 +247,7 @@ const produto = () => {
 
   primaryKeys.produto = [];
 
-  for (let idx = 0; idx < 100; idx++) {
+  for (let idx = 0; idx < 300; idx++) {
     primaryKeys.produto.push(idx);
 
     produto += `${
@@ -246,7 +270,7 @@ const produto = () => {
 };
 
 const caixa = () => {
-  let caixa = "\n\n------ CATEGORIA ------\n\n";
+  let caixa = "\n\n------ CAIXA ------\n\n";
 
   primaryKeys.caixa = [];
 
@@ -265,13 +289,13 @@ const equipamento = () => {
   primaryKeys.equipamento = [];
 
   for (let idx = 0; idx < 20; idx++) {
-    primaryKeys.equipamento.push(idx);
+    const obj = {
+      identificador: idx,
+      numero_caixa: getElement(primaryKeys.caixa)
+    };
+    primaryKeys.equipamento.push(obj);
 
-    equipamento += `${
-      insert.equipamento
-    } (${idx}, 'Descrição do Equipamento ${idx}', ${getElement(
-      primaryKeys.caixa
-    )});\n`;
+    equipamento += `${insert.equipamento} (${idx}, 'Descrição do Equipamento ${obj.identificador}', ${obj.numero_caixa});\n`;
   }
 
   return equipamento;
@@ -284,15 +308,12 @@ const realizaManutencao = () => {
 
   for (let idx = 0; idx < 30; idx++) {
     primaryKeys.realizaManutencao.push(idx);
-
-    realizaManutencao += `${insert.realizaManutencao} (${idx}, ${getElement(
-      primaryKeys.equipamento
-    )}, ${getElement(primaryKeys.caixa)}, ${getElement(
+    const objEquipamento = getElement(primaryKeys.equipamento);
+    realizaManutencao += `${insert.realizaManutencao} (${idx}, ${
+      objEquipamento.identificador
+    }, ${objEquipamento.numero_caixa}, ${getElement(
       primaryKeys.funcionario
-    )}, ${getRandomInt(10000000000, 10999999999)}, ${getRandomInt(
-      10,
-      200
-    )});\n`;
+    )}, ${getRandomTimestamp()}, ${getRandomInt(10, 200)});\n`;
   }
 
   return realizaManutencao;
@@ -303,8 +324,8 @@ const fornecedor = () => {
 
   primaryKeys.fornecedor = [];
 
-  for (let idx = 0; idx < 10; idx++) {
-    const cnpj = getRandomCpf();
+  for (let idx = 0; idx < 20; idx++) {
+    const cnpj = getRandomCnpj();
     primaryKeys.fornecedor.push(cnpj);
 
     fornecedor += `${
@@ -324,7 +345,7 @@ const solicitacao = () => {
 
   primaryKeys.solicitacao = [];
 
-  for (let idx = 0; idx < 40; idx++) {
+  for (let idx = 0; idx < 80; idx++) {
     primaryKeys.solicitacao.push(idx);
     const cnpjFornecedor = getElement(primaryKeys.fornecedor);
     cnpjSolicitacao.push(cnpjFornecedor);
@@ -349,7 +370,7 @@ const notaFiscal = () => {
 
   primaryKeys.notaFiscal = [];
 
-  for (let idx = 0; idx < 40; idx++) {
+  for (let idx = 0; idx < 80; idx++) {
     primaryKeys.notaFiscal.push(idx);
 
     notaFiscal += `${
@@ -357,7 +378,7 @@ const notaFiscal = () => {
     } (${idx}, '${cnpjSolicitacao.pop()}', ${getRandomInt(
       10,
       1000
-    )}, ${getRandomDate()}, ${idx});\n`;
+    )}, ${getRandomDate()}, ${getRandomInt(10, 100)}, ${idx});\n`;
   }
 
   return notaFiscal;
@@ -367,9 +388,9 @@ const telefoneFornecedor = () => {
   let telefoneFornecedor = "\n\n------ TELEFONE_FORNECEDOR ------\n\n";
 
   for (let idx = 0; idx < 20; idx++) {
-    telefoneFornecedor += `${
-      insert.telefoneFornecedor
-    } ('${getRandomTelefone()}', '${getElement(primaryKeys.fornecedor)}');\n`;
+    telefoneFornecedor += `${insert.telefoneFornecedor} ('${getElement(
+      primaryKeys.fornecedor
+    )}', '${getRandomTelefone()}');\n`;
   }
 
   return telefoneFornecedor;
@@ -380,17 +401,16 @@ const ordemCompra = () => {
 
   primaryKeys.ordemCompra = [];
 
-  for (let idx = 0; idx < 50; idx++) {
+  for (let idx = 0; idx < 200; idx++) {
     primaryKeys.ordemCompra.push(idx);
 
-    ordemCompra += `${insert.ordemCompra} (${idx}, ${getRandomInt(
-      10000000000,
-      10999999999
-    )}, '${getElement(primaryKeys.cliente)}', ${getElement(
-      primaryKeys.filial
-    )}, ${getElement(primaryKeys.funcionario)}, ${getElement(
-      primaryKeys.caixa
-    )});\n`;
+    ordemCompra += `${
+      insert.ordemCompra
+    } (${idx}, ${getRandomTimestamp()}, '${getElement(
+      primaryKeys.cliente
+    )}', ${getElement(primaryKeys.filial)}, ${getElement(
+      primaryKeys.funcionario
+    )}, ${getElement(primaryKeys.caixa)});\n`;
   }
 
   return ordemCompra;
@@ -401,7 +421,7 @@ const item = () => {
 
   primaryKeys.item = [];
 
-  for (let idx = 0; idx < 50; idx++) {
+  for (let idx = 0; idx < 300; idx++) {
     primaryKeys.item.push(idx);
 
     item += `${insert.item} (${idx}, ${getElement(
@@ -409,7 +429,9 @@ const item = () => {
     )}, ${getElement(primaryKeys.notaFiscal)}, ${getRandomInt(
       1,
       100
-    )}, ${getRandomInt(1, 100)}, ${getRandomInt(0, 10)});\n`;
+    )}, ${getRandomInt(1, 100)}.${getValue(getRandomInt(1, 99))}, 0.${getValue(
+      getRandomInt(0, 20)
+    )});\n`;
   }
 
   return item;
@@ -420,13 +442,12 @@ const realizaReclamacao = () => {
 
   primaryKeys.realizaReclamacao = [];
 
-  for (let idx = 0; idx < 50; idx++) {
+  for (let idx = 0; idx < 30; idx++) {
     primaryKeys.realizaReclamacao.push(idx);
 
-    realizaReclamacao += `${insert.realizaReclamacao} (${idx}, ${getRandomInt(
-      10000000000,
-      10999999999
-    )}, 'Descrição da Reclamação ${idx}', ${getElement(
+    realizaReclamacao += `${
+      insert.realizaReclamacao
+    } (${idx}, ${getRandomTimestamp()}, 'Descrição da Reclamação ${idx}', ${getElement(
       primaryKeys.filial
     )}, '${getElement(primaryKeys.cliente)}');\n`;
   }

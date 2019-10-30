@@ -194,7 +194,7 @@ CREATE TABLE REALIZA_MANUTENCAO (
 );
 
 CREATE TABLE FORNECEDOR (
-    cnpj		VARCHAR2(14),
+    cnpj		VARCHAR2(18),
     nome  VARCHAR2(100) NOT NULL,
     endereco    VARCHAR2(200) NOT NULL,
 	email 	VARCHAR2(50) NOT NULL,
@@ -216,7 +216,7 @@ CREATE TABLE SOLICITACAO (
     valor_compra	NUMBER(10,2) NOT NULL,
     prazo_pagamento 	DATE NOT NULL,
     codigo_filial 	INT NOT NULL,
-    cnpj_fornecedor	VARCHAR2(14) NOT NULL,
+    cnpj_fornecedor	VARCHAR2(18) NOT NULL,
 
     CONSTRAINT fk_filial_realiza
     FOREIGN KEY (codigo_filial)
@@ -232,7 +232,7 @@ CREATE TABLE SOLICITACAO (
 
 CREATE TABLE NOTA_FISCAL (
     numero INT,
-    cnpj	VARCHAR2(14) NOT NULL,
+    cnpj	VARCHAR2(18) NOT NULL,
     quantidade	INT NOT NULL,
     data  DATE NOT NULL,
     valor_por_item	NUMBER(8,2) NOT NULL,
@@ -248,7 +248,7 @@ CREATE TABLE NOTA_FISCAL (
 
 CREATE TABLE TELEFONE_FORNECEDOR (
 	telefone VARCHAR2(15),
-	cnpj VARCHAR2(14),
+	cnpj VARCHAR2(18),
 
     CONSTRAINT fk_telefone_fornecedor
     FOREIGN KEY (cnpj)
@@ -292,7 +292,7 @@ CREATE TABLE ITEM (
     numero_nota_fiscal INT,
     quantidade	INT NOT NULL,
     preco_produto NUMBER(6,2) NOT NULL,
-    desconto NUMBER(6,2) NOT NULL,
+    desconto NUMBER(3,2) NOT NULL,
 
     CONSTRAINT fk_ordem_compra
     FOREIGN KEY (num_nota_fiscal_ordem)
