@@ -214,8 +214,8 @@ CREATE TABLE SOLICITACAO (
     data_prevista 	DATE NOT NULL,
     data_entrega 	DATE NOT NULL,
     valor_compra	NUMBER(10,2) NOT NULL,
-    prazo_pagamento INT NOT NULL,
-    codigo_filial INT NOT NULL,
+    prazo_pagamento 	DATE NOT NULL,
+    codigo_filial 	INT NOT NULL,
     cnpj_fornecedor	VARCHAR2(14) NOT NULL,
 
     CONSTRAINT fk_filial_realiza
