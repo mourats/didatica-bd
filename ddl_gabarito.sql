@@ -118,11 +118,12 @@ CREATE TABLE CATEGORIA (
 	PRIMARY KEY (identificador)
 );
 
+-- MARGE_LUCRO está na representação númerica.
 CREATE TABLE PRODUTO (
     codigo_identificacao  INT,
     nome  VARCHAR2(100) NOT NULL,
     descricao	VARCHAR2(255) NOT NULL,
-    margem_lucro  VARCHAR2(4) NOT NULL,
+    margem_lucro  NUMBER(6,2) NOT NULL,
     codigo_filial INT NOT NULL,
     quantidade INT,
     preco_compra NUMBER(6,2),
@@ -286,6 +287,7 @@ CREATE TABLE ORDEM_COMPRA (
 	PRIMARY KEY (numero_nota_fiscal)
 );
 
+-- DESCONTO está na representação númerica.
 CREATE TABLE ITEM (
     identificador  INT,
     num_nota_fiscal_ordem INT,
