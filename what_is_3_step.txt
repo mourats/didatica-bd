@@ -1,0 +1,4 @@
+Cada grupo tem que ter 3 views e 3 triggers.
+Junçòes com Group By e order by.
+Outer join (pelo menos 1)
+2 Stored Procedures.
