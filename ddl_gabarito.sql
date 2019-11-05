@@ -212,8 +212,8 @@ CREATE TABLE FORNECEDOR (
 CREATE TABLE SOLICITACAO (
 	identificador INT,
     data_solicitacao 	DATE NOT NULL,
-    data_prevista 	DATE NOT NULL,
-    data_entrega 	DATE NOT NULL,
+    data_prevista 	DATE,
+    data_entrega 	DATE,
     valor_compra	NUMBER(10,2) NOT NULL,
     prazo_pagamento 	DATE NOT NULL,
     codigo_filial 	INT NOT NULL,
