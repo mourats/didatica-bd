@@ -96,10 +96,15 @@ CREATE TABLE FILIAL (
     codigo_identificacao  INT,
     nome  VARCHAR2(100) NOT NULL,
     endereco    VARCHAR2(200) NOT NULL,
-	telefone VARCHAR2(15),
+    telefone VARCHAR2(15) NOT NULL,
+    gerente INT,
+	
+    CONSTRAINT fk_gerente_filial
+    FOREIGN KEY (gerente)
+    REFERENCES  FUNCIONARIO(matricula),
 
-	CONSTRAINT pk_filial
-	PRIMARY KEY (codigo_identificacao)
+    CONSTRAINT pk_filial
+    PRIMARY KEY (codigo_identificacao)
 );
 
 CREATE TABLE MARCA (
