@@ -6,7 +6,7 @@ const insert = {
   telefoneCliente:
     "INSERT INTO TELEFONE_CLIENTE (CPF_CLIENTE, TELEFONE) VALUES",
   funcionario:
-    "INSERT INTO FUNCIONARIO (MATRICULA, CPF, IDENTIDADE, NOME, ENDERECO, SALARIO, FUNCAO, MATRICULA_SUPERVISOR) VALUES",
+    "INSERT INTO FUNCIONARIO (MATRICULA, CPF, IDENTIDADE, NOME, ENDERECO, SALARIO, FUNCAO, MATRICULA_SUPERVISOR, CODIGO_FILIAL) VALUES",
   telefoneFuncionario:
     "INSERT INTO TELEFONE_FUNCIONARIO (MATRICULA, TELEFONE) VALUES",
   dependente:
@@ -38,6 +38,7 @@ const insert = {
 };
 
 let primaryKeys = {};
+const QUANTIDADE_FILIAL = 10;
 
 const getRandomInt = (min, max) => {
   min = Math.ceil(min);
@@ -165,7 +166,7 @@ const funcionario = () => {
       10000
     )}, '${getElement(funcao)}', ${
       idx ? getElement(primaryKeys.funcionario) : null
-    });\n`;
+    }, ${getRandomInt(0, QUANTIDADE_FILIAL - 1)});\n`;
   }
 
   return funcionario;
@@ -202,7 +203,7 @@ const filial = () => {
 
   primaryKeys.filial = [];
 
-  for (let idx = 0; idx < 20; idx++) {
+  for (let idx = 0; idx < QUANTIDADE_FILIAL; idx++) {
     primaryKeys.filial.push(idx);
 
     filial += `${insert.filial} (${idx}, 'Filial ${idx}', 'Rua ${getRandomInt(
