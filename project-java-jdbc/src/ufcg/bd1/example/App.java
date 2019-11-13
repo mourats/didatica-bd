@@ -33,14 +33,14 @@ public class App {
 				String endereco = lerEndereco();
 				salario = lerSalario();
 				controller.inserirEmpregado(matricula, nome, endereco, salario);
-				System.out.println("Empregado inserido com sucesso!");
+				System.out.println("Empregado inserido com sucesso!" + NL);
 				break;
 			
 			case "A":
 				matricula = lerMatricula();
 				salario = lerSalario();
 			    controller.updateEmpregado(matricula, salario);
-			    System.out.println("Empregado atualizado com sucesso!");
+			    System.out.println("Empregado atualizado com sucesso!" + NL);
 				break;
 
 			case "L":

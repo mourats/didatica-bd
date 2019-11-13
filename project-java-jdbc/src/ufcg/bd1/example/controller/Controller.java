@@ -64,7 +64,7 @@ public class Controller {
 			ResultSet rs = statement.executeQuery(sql);
 			while (rs.next()) {
 				result += "Empregado: " + rs.getString("nome") + NL + "Matrícula: " + rs.getInt("matricula") + NL
-						+ "Endereço: " + rs.getString("endereco") + NL + "Salário: " + rs.getFloat("salario") + NL;
+						+ "Endereço: " + rs.getString("endereco") + NL + "Salário: " + rs.getFloat("salario") + NL + NL;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -76,8 +76,25 @@ public class Controller {
 	}
 
 	public String exibirEmpregado(Integer matricula) {
-		// TODO Auto-generated method stub
-		return null;
+		PreparedStatement preparedStatement;
+		String result = "";
+		try {
+			preparedStatement = connection.prepareStatement("SELECT * FROM empregado WHERE matricula = ?");
+			preparedStatement.setInt(1, matricula);
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				result += "Empregado: " + rs.getString("nome") + NL + "Matrícula: " + rs.getInt("matricula") + NL
+						+ "Endereço: " + rs.getString("endereco") + NL + "Salário: " + rs.getFloat("salario") + NL;
+				break;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		if (result.equals(""))
+			return "Não foi encontrado o empregado especificado." + NL;
+		else
+			return result;
+		
 	}
 
 }
