@@ -166,7 +166,7 @@ const funcionario = () => {
       10000
     )}, '${getElement(funcao)}', ${
       idx ? getElement(primaryKeys.funcionario) : null
-    }, ${getRandomInt(0, QUANTIDADE_FILIAL - 1)});\n`;
+    }, null);\n`;
   }
 
   return funcionario;
@@ -456,6 +456,17 @@ const realizaReclamacao = () => {
   return realizaReclamacao;
 };
 
+const updateFuncionario = () => {
+
+  let funcionario = "\n\n------ UPDATE FUNCIONARIO ------\n\n";
+
+  for (let idx = 0; idx < primaryKeys.funcionario.length; idx++) {
+
+    funcionario += `UPDATE FUNCIONARIO SET CODIGO_FILIAL = ${getElement(primaryKeys.filial)} WHERE MATRICULA = ${idx};\n`;
+  }
+  return funcionario;
+};
+
 const generateInserts = () => {
   save(
     cliente() +
@@ -476,7 +487,8 @@ const generateInserts = () => {
       telefoneFornecedor() +
       ordemCompra() +
       item() +
-      realizaReclamacao()
+      realizaReclamacao() +
+      updateFuncionario()
   );
 };
 
