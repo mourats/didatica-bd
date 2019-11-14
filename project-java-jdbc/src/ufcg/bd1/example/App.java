@@ -53,6 +53,7 @@ public class App {
 				break;
 				
 			case "S":
+				controller.closeConnection();
 				break;
 
 			default:

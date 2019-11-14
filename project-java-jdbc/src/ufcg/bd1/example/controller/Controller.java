@@ -24,6 +24,7 @@ public class Controller {
 		try {
 			statement = connection.createStatement();
 			statement.execute(sql);
+			statement.close();
 			return "Tabela Funionário criada com sucesso." + NL;
 		} catch (SQLException e) {
 			return "Error na criação da tabela." + NL;
@@ -38,6 +39,7 @@ public class Controller {
 		try {
 			statement = connection.createStatement();
 			statement.executeUpdate(empregadoSql);
+			statement.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -50,6 +52,7 @@ public class Controller {
 			preparedStatement.setFloat(1, salario);
 			preparedStatement.setInt(2, matricula);
 			preparedStatement.executeUpdate();
+			preparedStatement.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -66,6 +69,7 @@ public class Controller {
 				result += "Empregado: " + rs.getString("nome") + NL + "Matrícula: " + rs.getInt("matricula") + NL
 						+ "Endereço: " + rs.getString("endereco") + NL + "Salário: " + rs.getFloat("salario") + NL + NL;
 			}
+			statement.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -87,6 +91,7 @@ public class Controller {
 						+ "Endereço: " + rs.getString("endereco") + NL + "Salário: " + rs.getFloat("salario") + NL;
 				break;
 			}
+			preparedStatement.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -95,6 +100,14 @@ public class Controller {
 		else
 			return result;
 		
+	}
+	
+	public void closeConnection() {
+		try {
+			this.connection.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
