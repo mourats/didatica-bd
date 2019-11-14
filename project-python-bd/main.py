@@ -1,69 +1,58 @@
-# -*- coding: utf-8 -*-
-# Importa os módulos necessários 'MySQLdb'
-import MySQLdb, time
+from users_crud import display_all_users, add_new_user,search_users,update_user,delete_user,create_table_user,close_connection
 
-# Define endereço do servidor, nome de usuário do bd, senha do usuário do bd e nome da base de dados
-servidor = "localhost"
-usuario  = "thiago"
-senha  = "123456"
-banco = "STUDYBD"
+while(True):
+    title = "Users management - Create, Read, Update & Delete"
 
-# Realiza a conexão com o banco
-db = MySQLdb.connect(servidor, usuario, senha, banco)
-cursor = db.cursor() # seta o cursor para a conexão
+    print('-' * len(title))
+    print(title)
+    print('-' * len(title))
+    print('')
+    print('Select the action that you need to perform')
+    print('')
+    print('0. Create table users')
+    print('1. Display all users')
+    print('2. Add new user')
+    print('3. Search users')
+    print('4. Update user')
+    print('5. Delete user')
+    print('6. Exit\n')
+    choice = input("Enter your selection number: ")
+    print('')
 
-# Função que executa os comandos SQL no banco
-def Executa_SQL(pSQL):
-  try:
-    cursor.execute(pSQL)
-    db.commit()
-  except:
-    print("Erro: Não foi possível executar o SQL")
-    db.rollback()
+    if choice == 0:
+        create_table_user()
 
-# Função que executa comandos SQL (Select)
-def Busca_SQL(pSQL):
-  try:
-    cursor.execute(pSQL)
-    results = cursor.fetchall()
-    return results
-  except:
-    print("Erro: Não foi possível buscar os dados")
-    return 0
+    elif choice == 1:
+        display_all_users()
 
+    elif choice == 2:
+        username = input("Username: ")
+        email = input("Email: ")
+        password = input("Password: ")
 
-# Cria uma variavel com o SQL e chama a função passando como parametro o SQL
-vSQL = "CREATE TABLE IF NOT EXISTS USUARIO (NOME VARCHAR(50) NOT NULL, LOGIN VARCHAR(20), SENHA VARCHAR(20) )"
-Executa_SQL(vSQL)
+        user = (username,email,password)
 
-Executa_SQL("INSERT INTO USUARIO(NOME, LOGIN, SENHA) VALUES ('Kelvin S do Prado', 'Kelvin', 'Kelvin')")
+        add_new_user(user)
 
-# Chama a função Busca_SQL passando o comando SQL como parâmetro
-vResultado = Busca_SQL("SELECT * FROM USUARIO WHERE LOGIN = 'Kelvin'")
-for row in vResultado:
-  # Lê cada coluna de cada linha retornada do SELECT, começando pela coluna 0
-  vNome  = row[0]
-  vLogin = row[1]
-  vSenha = row[2]
-  print("Nome : " + vNome)
-  print("Sobrenome : " + vLogin)
-  print("Senha : " + vSenha+"\n")
+    elif choice == 3:
+        query = input("Enter your search term: ")
 
-Executa_SQL("UPDATE USUARIO SET NOME = 'Outro'")
+        search_users(query)
+    elif choice == 4:
+        user_id = input("Enter the user id: ")
+        username = input("Username: ")
+        email = input("Email: ")
+        password = input("Password: ")
 
-# Chama a função Busca_SQL passando o comando SQL como parâmetro
-vResultado = Busca_SQL("SELECT * FROM USUARIO WHERE LOGIN = 'Kelvin'")
-for row in vResultado:
-  vNome  = row[0]
-  vLogin = row[1]
-  vSenha = row[2]
-  print("Nome : " + vNome)
-  print("Sobrenome : " + vLogin)
-  print("Senha : " + vSenha)
+        user = (username,email,password,user_id)
 
-Executa_SQL("DELETE FROM USUARIO WHERE LOGIN = 'Kelvin'")
+        update_user(user)
+    elif choice == 5:
+        user_id = input("Enter the user id: ")
 
-# Fecha a conexão com o banco de dados
-db.close()
-
-time.sleep(3)
+        delete_user(user_id)
+    elif choice == 6:
+        close_connection()
+        exit()
+    else:
+        print("Invalid Selection. Please select a number that is between 0 and 6")
