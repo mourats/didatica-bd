@@ -1,6 +1,6 @@
 from mysql.connector import connect
 
-connection = connect(host='127.0.0.1',database='STUDYBD',user='thiago',password='123456', auth_plugin='mysql_native_password')
+connection = connect(host='127.0.0.1',database='STUDYBD',user='root',password='', auth_plugin='mysql_native_password')
 
 print('Attempting to connect to the database...')
 if connection.is_connected():
@@ -26,7 +26,7 @@ def add_new_user(user):
     sql_stmt = """INSERT INTO users (username,email,password) VALUES (%s,%s,%s)"""
     
     cursor = connection.cursor(prepared=True)
-    cursor.execute(sql_stmt,user)
+    cursor.execute(sql_stmt, user)
     connection.commit()
     cursor.close()
     print("Record successfully inserted into the database using prepared stament")

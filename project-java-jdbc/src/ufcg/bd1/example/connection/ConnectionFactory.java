@@ -8,9 +8,9 @@ public class ConnectionFactory {
 	public Connection getConnection() {
 		try {
 			System.out.println("Created BD Connection....\n");
-			return DriverManager.getConnection("jdbc:mysql://localhost/STUDYBD", "thiago", "123456");
+			return DriverManager.getConnection("jdbc:mysql://localhost/STUDYBD", "root", "");
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
 	}
-}
+}	
