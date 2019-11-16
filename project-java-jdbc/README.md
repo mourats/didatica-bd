@@ -4,7 +4,7 @@
 
 **Need to have java version 10 installed.**
 
-**Need to have a database MySQL installed and running**
+**Need to have a MySQL database installed and running**
 
 
 ## Configuration
