@@ -23,7 +23,7 @@ const insert = {
   realizaManutencao:
     "INSERT INTO REALIZA_MANUTENCAO (ID_MANUTENCAO, IDENTIFICADOR_EQUIPAMENTO, NUMERO_CAIXA, MATRICULA_FUNCIONARIO, DATA_HORA, CUSTO) VALUES",
   fornecedor:
-    "INSERT INTO FORNECEDOR (CNPJ, NOME, ENDERECO, EMAIL, ID_CATEGORIA) VALUES",
+    "INSERT INTO FORNECEDOR (CNPJ, NOME, ENDERECO, EMAIL, ID_CATEGORIA, SITE) VALUES",
   solicitacao:
     "INSERT INTO SOLICITACAO (IDENTIFICADOR, DATA_SOLICITACAO, DATA_PREVISTA, DATA_ENTREGA, VALOR_COMPRA, PRAZO_PAGAMENTO, CODIGO_FILIAL, CNPJ_FORNECEDOR) VALUES",
   notaFiscal:
@@ -39,6 +39,15 @@ const insert = {
 
 let primaryKeys = {};
 const QUANTIDADE_FILIAL = 10;
+const allAlphaCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+const getAleatorySite = () => {
+  let site = "";
+  for (let x = 0; x < 20; x++) {
+    site += allAlphaCharacters[getRandomInt(0, allAlphaCharacters.length - 1)];
+  }
+  return site + ".com.br";
+}
 
 const getRandomInt = (min, max) => {
   min = Math.ceil(min);
@@ -333,7 +342,7 @@ const fornecedor = () => {
       insert.fornecedor
     } ('${cnpj}', 'Fornecedor ${idx}', 'Rua 0${idx}', 'fornecedor${idx}@gmail.com', ${getElement(
       primaryKeys.categoria
-    )});\n`;
+    )}, '${getAleatorySite()}');\n`;
   }
 
   return fornecedor;

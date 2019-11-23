@@ -206,6 +206,7 @@ CREATE TABLE FORNECEDOR (
     endereco    VARCHAR2(200) NOT NULL,
 	email 	VARCHAR2(50) NOT NULL,
     id_categoria INT NOT NULL,
+    site VARCHAR2(100) NOT NULL,
     
     CONSTRAINT fk_categoria_fornecedor
     FOREIGN KEY (id_categoria)
