@@ -302,6 +302,11 @@ CREATE TABLE ITEM (
     quantidade	INT NOT NULL,
     preco_produto NUMBER(6,2) NOT NULL,
     desconto NUMBER(3,2) NOT NULL,
+    codigo_produto INT,
+
+    CONSTRAINT fk_produto_item
+    FOREIGN KEY (codigo_produto)
+    REFERENCES  PRODUTO(codigo_identificacao),
 
     CONSTRAINT fk_ordem_compra
     FOREIGN KEY (num_nota_fiscal_ordem)
