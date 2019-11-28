@@ -1,0 +1,193 @@
+/*
+GRUPO 1:   Pablwo Mattheus Ribeiro de Araujo
+           Natan Ataide de Souza
+           Rodrigo Farias Oliveira
+           Vítor Braga Diniz
+*/
+
+--QUESTÃO 1:
+
+WITH CLIENTE_COM_JOAO AS(
+    SELECT c.CPF AS CPF_CLIENTE
+    FROM CLIENTE c
+    WHERE INSTR(c.NOME, "joao") > 0 OR 
+    INSTR(c.NOME, "Joao")> 0 OR 
+    INSTR(c.NOME, "joão")> 0 OR 
+    INSTR(c.NOME, "João")> 0 OR 
+    INSTR(c.NOME, "JOÃO")> 0 OR 
+    INSTR(c.NOME, "JOAO")> 0 
+)
+
+SELECT f.*
+FROM FILIAL f
+WHERE(
+    SELECT COUNT(r.CLI_CPF) FROM  RECLAMACAO r
+    JOIN CLIENTE_COM_JOAO AS ccj ON r.CLI_CPF = ccj.CPF_CLIENTE
+) > 1;
+
+--QUESTÃO 2:
+
+CREATE VIEW QUANTIDADES
+AS SELECT MIN(quantidade) AS "MIN QUANTIDADE", Max(quantidade) AS "Max QUANTIDADE" 
+FROM ITEM 
+WHERE ITEM.PRECO_PRODUTO*0.10 = ITEM.DESCONTO;
+
+--QUESTÃO 3:
+
+
+--QUESTÃO 4:
+
+CREATE VIEW FuncionariosCaixa
+    AS SELECT F.nome
+    FROM FUNCIONARIO F
+    WHERE F.funcao = 'caixa' OR
+          F.funcao = 'Caixa'
+    ORDER BY F.nome DESC, F.salario DESC
+
+--QUESTÃO 5: 
+
+SELECT p.NOME
+FROM PRODUTO p
+WHERE p.PRECO_VENDA * p.QUANTIDADE > 500;
+
+--QUESTÃO 6:
+
+SELECT d.NOME as NOME_DO_DEPENDENTE, f.NOME NOME_DO_FUNCIONARIO 
+FROM DEPENDENTE d, FUNCIONARIO f 
+WHERE DATA_NASC IN 
+    (SELECT Min(DATA_NASC) FROM DEPENDENTE d, FUNCIONARIO f) 
+    AND f.MATRICULA=d.MATRICULA_FUNCIONARIO;
+
+--QUESTÃO 7:
+
+SELECT e.NUMERO_DO_CAIXA, e.DESCRICAO 
+FROM EQUIPAMENTO e
+WHERE COUNT(e.IDENTIFICADOR) = 1 
+GROUP BY e.NUMERO_DO_CAIXA 
+HAVING COUNT(e.IDENTIFICADOR);
+
+--QUESTÃO 8:
+
+SELECT F.*
+FROM FUNCIONARIO F
+WHERE ( SELECT COUNT(DISTINCT R.id_manutencao)
+	FROM REALIZA_MANUTENCAO R
+	WHERE F.matricula = R.matricula_funcionario ) > 1
+
+--QUESTÃO 9: 
+
+SELECT *
+FROM FUNCIONARIO f
+WHERE f.SALARIO < 1499 AND f.MATRICULA = f.MATRICULA_SUPERVISOR;
+
+--QUESTÃO 10:
+
+SELECT NOME FROM CLIENTE WHERE CPF IN 
+    (SELECT CPF_CLIENTE FROM(
+            SELECT   CPF_CLIENTE, COUNT(CPF_CLIENTE) AS quantidade FROM  ORDEM_COMPRA GROUP BY CPF_CLIENTE) 
+            WHERE QUANTIDADE> 
+                (SELECT AVG(QUANTIDADE) AS MEDIA FROM
+                        (SELECT CPF_CLIENTE, Quantidade FROM
+                            (SELECT CPF_CLIENTE, COUNT(CPF_CLIENTE) AS quantidade FROM  ORDEM_COMPRA GROUP BY CPF_CLIENTE))
+                )
+
+    );
+
+--QUESTÃO 11:
+
+
+--QUESTÃO 12:
+
+SELECT O.numero_caixa, SUM(I.quantidade)
+FROM ORDEM_COMPRA O, ITEM I
+WHERE O.numero_nota_fiscal = I.num_nota_fiscal_ordem
+GROUP BY O.numero_caixa
+
+--QUESTÃO 13: Crie uma view que lista todas as colunas dos clientes que fizeram uma ordem de compra num mesmo caixa durante o ano de 2018.
+
+CREATE OR REPLACE VIEW LISTA_CLIENTES AS
+    WITH LISTA_2018 AS(
+        SELECT odc.CAI_NUMERO AS CAIXA, odc.CLI_CPF AS CPF
+        FROM ORDEM_DE_COMPRA odc
+        WHERE odc.DATA_E_HORA_DA_VENDA >= TO_TIMESTAMP('01-01-2018 00:00:00', 'dd-mm-yyyy hh24:mi:ss') AND
+              odc.DATA_E_HORA_DA_VENDA < TO_TIMESTAMP('01-01-2019 00:00:00', 'dd-mm-yyyy hh24:mi:ss')
+    )
+    SELECT c.*
+    FROM CLIENTE c
+    JOIN LISTA_2018 l2018 ON l2018.CPF = c.CPF
+    GROUP BY l2018.CAIXA;
+
+
+--QUESTÃO 14:
+
+CREATE VIEW CATEGORIAS_FORNECEDORES (NOME_FORNECEDOR,SITE_FORNECEDOR,NOME_CATEGORIA) AS
+    SELECT F.NOME, SITE, C.NOME FROM FORNECEDOR F, CATEGORIA C WHERE ID_CATEGORIA=IDENTIFICADOR;
+
+--QUESTÃO 15:
+
+ALTER TABLE CLIENTE 
+ADD CONSTRAINT check_cpf 
+CHECK ((INSTR(CPF, '.') = 3 AND INSTR(CPF, '.') = 7 AND INSTR(CPF, '-') = 11));
+
+--QUESTÃO 16:
+
+CREATE OR REPLACE TRIGGER VerificaQuantidade
+	AFTER UPDATE OF quantidade ON PRODUTO
+	FOR EACH ROW
+	BEGIN
+		IF (:new.quantidade < 20) THEN
+			INSERT INTO SOLICITACAO VALUES (SYSDATE, null, null, :new.preco_compra*100, SYSDATE, :new.codigo_filial, :new.cnpj_fornecedor);
+		END IF;
+	END;
+
+--QUESTÃO 17: Faça um trigger que ao ser inserido uma solicitação, uma nota fiscal seja inserida. Considere a quantidade fixa de 10 e o valor por item ser o valor da compra dividido por 10.
+
+CREATE OR REPLACE TRIGGER NOTA_FISCAL_INSERIDA
+    AFTER INSERT ON SOLICITACAO
+    REFERENCING NEW AS NEW OLD AS OLD
+    FOR EACH ROW
+    BEGIN
+        INSERT INTO NOTA_FISCAL (NUMERO, CNPJ, QUANTIDADE, DATA_NOTA, VALOR, SOL_IDENTIFICADOR)
+        VALUES (NEW.NUMERO, OLD.CNPJ, 10, NEW.DATA_NOTA, NEW.VALOR/10, NEW.SOL_IDENTIFICADOR)
+    END;
+
+--QUESTÃO 18:
+
+CREATE OR REPLACE TRIGGER QUANTIDADE_DE_DEPENDENTE
+BEFORE INSERT OR UPDATE ON DEPENDENTE  
+FOR EACH ROW 
+BEGIN         
+    IF:NEW.MATRICULA_FUNCIONARIO IN (SELECT MATRICULA_FUNCIONARIO FROM DEPENDENTE HAVING COUNT(MATRICULA_FUNCIONARIO) >= 3 GROUP BY MATRICULA_FUNCIONARIO) 
+        THEN RAISE_APPLICATION_ERROR(-20000, 'Funcionario Excedeu a Quantidade de Dependentes');
+    END IF;
+END;
+
+--QUESTÃO 19:
+
+
+--QUESTÃO 20:
+
+CREATE OR REPLACE PROCEDURE getOrdemCompraByPeriodo (periodo_comeco IN DATE, periodo_fim IN DATE)		
+	DECLARE
+	compras ORDEM_COMPRA%ROWTYPE;
+	BEGIN
+		SELECT * INTO FROM ORDEM_COMPRA WHERE data_hora > periodo_comeco AND 
+				data_hora < periodo_fim;
+		DBMS_OUTPUT.PUT_LINE('-----------------------------------');
+		DBMS_OUTPUT.PUT_LINE('ID: ' || TO_CHAR(compras.identificador));
+		DBMS_OUTPUT.PUT_LINE('DATA SOLICITACAO: ' || TO_CHAR(compras.data_solicitacao));
+		DBMS_OUTPUT.PUT_LINE('VALOR COMPRA: ' || TO_CHAR(compras.valor_compra));
+		DBMS_OUTPUT.PUT_LINE('CODIGO FILIAL: ' || TO_CHAR(compras.codigo_filial));
+		DBMS_OUTPUT.PUT_LINE('CNPJ FORNECEDOR: ' || TO_CHAR(compras.cnpj_fornecedor));
+		DBMS_OUTPUT.PUT_LINE('-----------------------------------');
+	END;
+
+/*
+Para executar o procedure: 
+
+BEGIN
+
+getOrdemCompraByPeriodo(DATA_DE_INICIO_AQUI, DATA_DE_FIM_AQUI);
+
+END;
+*/
